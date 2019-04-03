@@ -7,12 +7,15 @@ let mouse = {
     x:0,
     y:0
 }
-let pos = new Vector(60,60);
-let vel = new Vector(.5, .2);
-function init() {
-    alert('Hello World!');
-    console.log(pos.toString());
+let pos = new Vector(5, 7);
+let vel = new Vector(1, 1);
 
+function init() {
+    console.log(pos.toString());
+    vel.scale(2);
+    console.log(vel.toString()); // <2, 2>
+    pos.subVector(vel);
+    console.log(pos.toString());  // <3, 5>
     update();
 }
 

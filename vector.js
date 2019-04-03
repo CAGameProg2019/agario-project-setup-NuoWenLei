@@ -19,6 +19,9 @@ class Vector {
     }
 
     scale(s){
+        this.x *= s;
+        this.y *= s;
+        return this;
 
     }
 
