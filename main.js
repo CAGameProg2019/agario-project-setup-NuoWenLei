@@ -27,7 +27,7 @@ function colorRandom(){
 
 function init() {
     for(i = 0; i < 100; i ++){
-        foods.push(new Food(Math.random()*canvas.width, Math.random()*canvas.height, 20, colorRandom()));
+        foods.push(new Food(Math.random()*canvas.width, Math.random()*canvas.height, 10, colorRandom()));
     }
 
     update();
