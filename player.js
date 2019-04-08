@@ -1,7 +1,8 @@
-class Player {
+class Player extends Food{
 
-    constructor() {
-
+    constructor(x, y, radius, color) {
+        super(x, y, radius, color);
     }
 
 }
+Object.assign(Player, Food);

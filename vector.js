@@ -28,4 +28,5 @@ class Vector {
     toString() {
         return '<' + this.x + ',' + this.y + '>';
     }
+
 }

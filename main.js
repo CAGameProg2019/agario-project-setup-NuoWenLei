@@ -1,13 +1,10 @@
 let canvas = document.getElementById('main');
 let c = canvas.getContext('2d');
-canvas.width = innerWidth;
-canvas.height = innerHeight;
+canvas.width = innerWidth-20;
+canvas.height = innerHeight-20;
 
-let mouse = {
-    x:0,
-    y:0
-}
-
+let mpos;
+let player;
 let foods = [];
 
 let colorArray = ['#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
@@ -26,27 +23,32 @@ function colorRandom(){
 }
 
 function init() {
-    for(i = 0; i < 100; i ++){
+
+mpos = new Vector(canvas.width/2, canvas.height/2);
+
+    for( let i = 0; i < 100; i ++){
         foods.push(new Food(Math.random()*canvas.width, Math.random()*canvas.height, 10, colorRandom()));
     }
-
+    player = new Player(canvas.width/2, canvas.height/2, 25, colorRandom());
     update();
 }
 
 function update() {
     c.clearRect(0,0,canvas.width, canvas.height);
 
-    for(var i = 0; i < foods.length; i++){
+    for(let i = 0; i < foods.length; i++){
         foods[i].draw(c);
     }
+    player.draw(c);
 
     requestAnimationFrame(update);
 }
 
-window.addEventListener('load', function(event) {
+window.addEventListener('load', function() {
     init();
+    window.addEventListener('mousemove', function(event){
+        mpos.x = event.clientX - canvas.offsetLeft;
+        mpos.y = event.clientY - canvas.offsetTop;
+        console.log(mpos.toString());
+    });
 });
-window.addEventListener('mousemove', function(event){
-    mouse.x = event.x;
-    mouse.y = event.y;
-})
