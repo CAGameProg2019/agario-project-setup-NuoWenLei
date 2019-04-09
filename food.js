@@ -6,6 +6,7 @@ class Food extends Vector{
         this.color = color;
     }
 
+
     draw(context){
         context.fillStyle = this.color;
         context.beginPath();

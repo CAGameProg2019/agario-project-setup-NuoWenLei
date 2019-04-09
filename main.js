@@ -5,6 +5,8 @@ canvas.height = innerHeight-20;
 
 let mpos;
 let player;
+let velVec = new Vector(0,0);
+
 let foods = [];
 
 let colorArray = ['#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
@@ -22,6 +24,12 @@ function colorRandom(){
     return colorArray[Math.floor(Math.random()*colorArray.length)];
 }
 
+function velocity(){
+	velVec.x = (mpos.x - player.x)/200;
+	velVec.y = (mpos.y - player.y)/200;
+
+}
+
 function init() {
 
 mpos = new Vector(canvas.width/2, canvas.height/2);
@@ -34,12 +42,23 @@ mpos = new Vector(canvas.width/2, canvas.height/2);
 }
 
 function update() {
+
+
     c.clearRect(0,0,canvas.width, canvas.height);
 
+
+	velocity();
+
+
     for(let i = 0; i < foods.length; i++){
+
         foods[i].draw(c);
+
     }
-    player.draw(c);
+
+
+    player.update(c);
+
 
     requestAnimationFrame(update);
 }
@@ -49,6 +68,6 @@ window.addEventListener('load', function() {
     window.addEventListener('mousemove', function(event){
         mpos.x = event.clientX - canvas.offsetLeft;
         mpos.y = event.clientY - canvas.offsetTop;
-        console.log(mpos.toString());
+
     });
 });
