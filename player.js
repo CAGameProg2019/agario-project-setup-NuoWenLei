@@ -1,9 +1,10 @@
 class Player extends Food{
 
 
-    constructor(x, y, radius, color, name) {
+    constructor(x, y, radius, color, name, num) {
         super(x, y, radius, color);
         this.name = name;
+        this.num = num;
     }
 
     draw(context){
@@ -20,8 +21,13 @@ class Player extends Food{
         context.strokeText(this.name, this.x-(this.name.length*(this.radius/6.7)), this.y+this.radius/5);
     }
 
+    feed(mouse){
+        console.log('hu');
+
+    }
+
     update(context){
-        this.addVector(velVec);
+        this.addVector(vel[this.num]);
         this.draw(context);
     }
 

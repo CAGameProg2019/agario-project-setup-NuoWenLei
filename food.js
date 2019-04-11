@@ -15,8 +15,18 @@ class Food extends Vector{
         context.fill();
     }
 
+    get mass(){
+        return Math.PI * this.radius * this.radius;
+    }
+    set mass(newmass){
+        this.radius = Math.sqrt(newmass/Math.PI);
+    }
+
+    addMass(m){
+        this.mass += m;
+    }
     update(context){
-        
+
         this.draw(context);
     }
 
