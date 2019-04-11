@@ -6,6 +6,8 @@ canvas.height = innerHeight-20;
 let mpos;
 let player;
 let velVec = new Vector(0,0);
+let mP1 = new Vector(0,0);
+let name;
 
 let foods = [];
 
@@ -24,20 +26,46 @@ function colorRandom(){
     return colorArray[Math.floor(Math.random()*colorArray.length)];
 }
 
-function velocity(){
-	velVec.x = (mpos.x - player.x)/200;
-	velVec.y = (mpos.y - player.y)/200;
+function stopPlayer(){
+	if(dist(mP1.x, mP1.y, player.x, player.y) >= dist(mP1.x, mP1.y, mpos.x, mpos.y)){
+		velVec.x = 0;
+		velVec.y = 0;
+	}
+}
 
+function velocity(){
+	velVec.x = (mpos.x-player.x)/(player.radius*2);
+	velVec.y = (mpos.y-player.y)/(player.radius*2);
+	mP1.x = player.x
+	mP1.y = player.y;
+
+}
+
+function dist(x1, y1, x2, y2){
+	return Math.sqrt(Math.pow(x1-x2, 2)+Math.pow(y1-y2, 2));
+}
+
+function eat(){
+	for(let i = 0; i<foods.length; i++){
+		if(dist(player.x, player.y, foods[i].x, foods[i].y) <= player.radius+foods[i].radius){
+			player.radius ++;
+			foods.splice(i, 1);
+			foods.push(new Food(Math.random()*canvas.width, Math.random()*canvas.height, 10, colorRandom()));
+
+		}
+	}
 }
 
 function init() {
 
-mpos = new Vector(canvas.width/2, canvas.height/2);
+	mpos = new Vector(canvas.width/2, canvas.height/2);
+
+	name = prompt("Enter Name:");
 
     for( let i = 0; i < 100; i ++){
         foods.push(new Food(Math.random()*canvas.width, Math.random()*canvas.height, 10, colorRandom()));
     }
-    player = new Player(canvas.width/2, canvas.height/2, 25, colorRandom());
+    player = new Player(canvas.width/2, canvas.height/2, 25, colorRandom(), name);
     update();
 }
 
@@ -46,17 +74,15 @@ function update() {
 
     c.clearRect(0,0,canvas.width, canvas.height);
 
-
-	velocity();
-
-
     for(let i = 0; i < foods.length; i++){
 
-        foods[i].draw(c);
+        foods[i].update(c);
 
     }
 
-
+	stopPlayer();
+	// console.log(velVec);
+	eat();
     player.update(c);
 
 
@@ -68,6 +94,11 @@ window.addEventListener('load', function() {
     window.addEventListener('mousemove', function(event){
         mpos.x = event.clientX - canvas.offsetLeft;
         mpos.y = event.clientY - canvas.offsetTop;
+		velocity();
+
 
     });
+	window.addEventListener('click', function(){
+
+	})
 });

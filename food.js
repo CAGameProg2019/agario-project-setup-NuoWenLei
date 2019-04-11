@@ -15,5 +15,11 @@ class Food extends Vector{
         context.fill();
     }
 
+    update(context){
+        
+        this.draw(context);
+    }
+
+
 }
 Object.assign(Food, Vector);

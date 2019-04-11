@@ -8,6 +8,7 @@ class Vector {
     addVector(vec){
         this.x += vec.x;
         this.y += vec.y;
+        // console.log(this.x, this.y);
         return this;
     }
 
