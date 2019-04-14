@@ -15,15 +15,19 @@ class Player extends Food{
         context.fill();
         context.strokeStyle = 'black';
         context.lineWidth = this.radius/40;
+        context.stroke();
         context.fillStyle = 'white';
         context.font = this.radius/2+"px Arial";
         context.fillText(this.name, this.x-(this.name.length*(this.radius/6.7)), this.y+this.radius/5);
         context.strokeText(this.name, this.x-(this.name.length*(this.radius/6.7)), this.y+this.radius/5);
     }
 
-    feed(mouse){
-        console.log('hu');
-
+    feed(mouse, dist){
+        let dir = new Vector(mouse.x-this.x, mouse.y-this.y);
+        let num = dist/(Math.abs(dir.x)+Math.abs(dir.y));
+        dir.x *= num;
+        dir.y *= num;
+        return dir;
     }
 
     update(context){

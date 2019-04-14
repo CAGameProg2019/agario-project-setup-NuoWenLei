@@ -7,8 +7,9 @@ let mpos;
 let player = [];
 let vel = [];
 let eatVal;
-let mP1 = new Vector(0,0);
+let mP = [];
 let name;
+const FEEDDISTANCE = 200;
 
 let foods = [];
 
@@ -27,9 +28,9 @@ function colorRandom(){
     return colorArray[Math.floor(Math.random()*colorArray.length)];
 }
 
-function stopPlayer(i){
+function stopPlayer(){
 	for(i = 0; i<player.length; i++){
-		if(player[i].dist(mP1.x, mP1.y, player[i].x, player[i].y) >= player[i].dist(mP1.x, mP1.y, mpos.x, mpos.y)){
+		if(player[i].dist(mP[i].x, mP[i].y, player[i].x, player[i].y) >= player[i].dist(mP[i].x, mP[i].y, mpos.x, mpos.y)){
 			vel[i].x = 0;
 			vel[i].y = 0;
 		}
@@ -37,12 +38,20 @@ function stopPlayer(i){
 
 }
 
+function shoot(vec){
+	player.push(new Player(player[0].x, player[0].y, player[0].radius/2, player[0].color, name, 1));
+	player[1].addVector(vec);
+	vel.push(new Vector(0,0));
+	mP.push(new Vector(0,0));
+
+}
+
 function velocity(){
 	for(i = 0; i<player.length; i++){
 		vel[i].x = (mpos.x-player[i].x)/(player[i].radius*2);
 		vel[i].y = (mpos.y-player[i].y)/(player[i].radius*2);
-		mP1.x = player[i].x
-		mP1.y = player[i].y;
+		mP[i].x = player[i].x;
+		mP[i].y = player[i].y;
 	}
 
 
@@ -56,7 +65,6 @@ function eat(index){
 			break;
 		} else {
 			retNum = false;
-			break;
 		}
 
 	}
@@ -69,7 +77,7 @@ function eat(index){
 function init() {
 	vel.push(new Vector(0,0));
 	mpos = new Vector(canvas.width/2, canvas.height/2);
-
+	mP.push(new Vector(0,0));
 	name = prompt("Enter Name:");
 
     for( let i = 0; i < 100; i ++){
@@ -87,16 +95,18 @@ function update() {
     for(let i = 0; i < foods.length; i++){
 
 		eatVal = eat(i);
-		console.log(eatVal);
-		if(eatVal === 0){
-			console.log('hi');
+		// console.log(eatVal);
+		foods[i].update(c);
+		if(eatVal === 0 || eatVal === 1){
+			console.log(eatVal);
+
 			player[eatVal].radius++;
 			foods.splice(i, 1);
 			foods.push(new Food(Math.random()*canvas.width, Math.random()*canvas.height, 10, colorRandom()));
 			i--;
 
 		}
-		foods[i].update(c);
+
 
     }
 
@@ -122,6 +132,10 @@ window.addEventListener('load', function() {
     });
 	window.addEventListener('keydown', function(event){
 		if(event.key == 'w'){
+			if(player.length == 1){
+				shoot(player[0].feed(mpos, FEEDDISTANCE));
+				player[0].radius /= 2;
+			}
 
 		}
 	})
