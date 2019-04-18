@@ -9,6 +9,7 @@ let vel = [];
 let eatVal;
 let mP = [];
 let name;
+let repels = [];
 const FEEDDISTANCE = 200;
 
 let foods = [];
@@ -43,15 +44,56 @@ function shoot(vec){
 	player[1].addVector(vec);
 	vel.push(new Vector(0,0));
 	mP.push(new Vector(0,0));
+	repels.push(new Vector(0,0));
 
 }
 
 function velocity(){
 	for(i = 0; i<player.length; i++){
-		vel[i].x = (mpos.x-player[i].x)/(player[i].radius*2);
-		vel[i].y = (mpos.y-player[i].y)/(player[i].radius*2);
 		mP[i].x = player[i].x;
 		mP[i].y = player[i].y;
+
+
+
+		vel[i].x = (mpos.x-player[i].x)/(player[i].radius*2);
+		vel[i].y = (mpos.y-player[i].y)/(player[i].radius*2);
+	}
+	if(player[0].dist(player[0].x, player[0].y, player[1].x, player[1].y) <= player[0].radius+player[1].radius){
+		if(player[0].x >= player[1].x){
+			if(player[0].y >= player[1].y){
+				repels[0].x = Math.abs(vel[0].x);
+				repels[0].y = Math.abs(vel[0].y);
+				repels[1].x = Math.abs(vel[1].x);
+				repels[1].y = Math.abs(vel[1].y);
+				player[0].addVector(repels[0]);
+				player[1].subVector(repels[1]);
+			}
+			if(player[0].y <= player[1].y){
+				repels[0].x = Math.abs(vel[0].x);
+				repels[0].y = -1 * Math.abs(vel[0].y);
+				repels[1].x = Math.abs(vel[1].x);
+				repels[1].y = Math.abs(vel[1].y);
+				player[0].addVector(repels[0]);
+				player[1].subVector(repels[1]);
+			}
+		}else if(player[0].x <= player[1].x){
+			if(player[0].y >= player[1].y){
+				repels[0].x = Math.abs(vel[0].x);
+				repels[0].y = Math.abs(vel[0].y);
+				repels[1].x = Math.abs(vel[1].x);
+				repels[1].y = Math.abs(vel[1].y);
+				player[0].addVector(repels[0]);
+				player[1].subVector(repels[1]);
+			}
+			if(player[0].y <= player[1].y){
+				repels[0].x = Math.abs(vel[0].x);
+				repels[0].y = -1 * Math.abs(vel[0].y);
+				repels[1].x = Math.abs(vel[1].x);
+				repels[1].y = Math.abs(vel[1].y);
+				player[0].addVector(repels[0]);
+				player[1].subVector(repels[1]);
+			}
+		}
 	}
 
 
@@ -74,17 +116,20 @@ function eat(index){
 }
 
 
+
 function init() {
 	vel.push(new Vector(0,0));
 	mpos = new Vector(canvas.width/2, canvas.height/2);
 	mP.push(new Vector(0,0));
 	name = prompt("Enter Name:");
+	repels.push(new Vector(0,0));
 
     for( let i = 0; i < 100; i ++){
         foods.push(new Food(Math.random()*canvas.width, Math.random()*canvas.height, 10, colorRandom()));
     }
     player.push(new Player(canvas.width/2, canvas.height/2, 25, colorRandom(), name, 0));
     update();
+
 }
 
 function update() {
@@ -116,6 +161,17 @@ function update() {
     for(i = 0; i< player.length; i++){
 		player[i].update(c);
 	}
+	if(player.length > 1){
+		setTimeout(function(){
+			player[0].radius += player[1].radius;
+			player.splice(1,1);
+			vel.splice(1,1);
+			repels.splice(1,1);
+			mP.splice(1,1);
+
+		}, 10000);
+	}
+
 
 
     requestAnimationFrame(update);
