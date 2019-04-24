@@ -7,8 +7,16 @@ let mpos;
 let player;
 let vel;
 let eatVal;
+let foodNum = 1000;
 let mP;
 let name;
+let boundaryThickness = 10;
+let power = false;
+let powerFoods = [];
+let powerTimeout;
+// let trueX;
+// let trueY;
+let trueSpace = new Vector(5000,5000);
 const FEEDDISTANCE = 200;
 
 let foods = [];
@@ -26,6 +34,80 @@ let colorArray = ['#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
 
 function colorRandom(){
     return colorArray[Math.floor(Math.random()*colorArray.length)];
+}
+
+function boundary(){
+	c.beginPath();
+	c.moveTo(0-player.x+canvas.width/2, 0-player.y+canvas.height/2);
+	c.lineTo(trueSpace.x-player.x+canvas.width/2, 0-player.y+canvas.height/2);
+	c.lineTo(trueSpace.x-player.x+canvas.width/2, trueSpace.y-player.y+canvas.height/2);
+	c.lineTo(0-player.x+canvas.width/2, trueSpace.y-player.y+canvas.height/2);
+	c.lineTo(0-player.x+canvas.width/2, 0-player.y+canvas.height/2);
+	c.closePath();
+	c.lineWidth = boundaryThickness;
+	c.stroke();
+	if(player.x+player.radius >= trueSpace.x || player.x-player.radius <= 0 || player.y+player.radius >= trueSpace.y || player.y-player.radius <= 0){
+		player.radius -= player.radius/8;
+	}
+}
+
+function minimap(){
+	c.fillStyle = 'rgba(49, 116, 158, 0.5)';
+	c.fillRect((9*canvas.width)/10, canvas.height/20, 100, 100);
+	c.beginPath();
+	c.arc(((9*canvas.width)/10) + player.x/(trueSpace.x/100), (canvas.height/20) + player.y/(trueSpace.y/100), 5, 0, Math.PI*2, false);
+	// console.log(player.x/(trueSpace.x/100), player.y/(trueSpace.y/100));
+	c.closePath();
+	c.fillStyle = player.color;
+	c.fill();
+	c.lineWidth = 1;
+	c.stroke();
+	if(!power){
+		c.beginPath();
+		c.arc(((9*canvas.width)/10) + powerFoods[0].x/(trueSpace.x/100), (canvas.height/20) + powerFoods[0].y/(trueSpace.y/100), 3, 0, Math.PI*2, false);
+		c.closePath();
+		c.fillStyle = powerFoods[0].color;
+		c.fill();
+		c.lineWidth = 0.5;
+		c.stroke();
+	}
+
+
+}
+
+function superFood(){
+	powerFoods[0].draw(c, player);
+	if(player.dist(player.x, player.y, powerFoods[0].x, powerFoods[0].y) <= 500){
+		let vel = new Vector(player.x, player.y);
+        vel.subVector(powerFoods[0]);
+		vel.toDirVec();
+		vel.scale(player.maxSpeed/2);
+		powerFoods[0].subVector(vel);
+		if(powerFoods[0].x+powerFoods[0].radius >= trueSpace.x || powerFoods[0].x-powerFoods[0].radius <= 0 || powerFoods[0].y+powerFoods[0].radius >= trueSpace.y || powerFoods[0].y-powerFoods[0].radius <= 0){
+			powerFoods[0].x = Math.random()*trueSpace.x;
+			powerFoods[0].y = Math.random() * trueSpace.y;
+		}
+		if(player.dist(player.x, player.y,powerFoods[0].x,powerFoods[0].y) <= player.radius + powerFoods[0].radius){
+			player.radius++;
+			power = true;
+			powerTimer();
+		}
+
+	}
+
+}
+
+function powerTimer(){
+	powerTimeout = setTimeout(function(){
+		power = false;
+		powerFoods[0].x = Math.random()*trueSpace.x;
+		powerFoods[0].y = Math.random()*trueSpace.y;
+		powerFoods[0].color = colorRandom();
+		resetTimer();
+	}, 5000);
+}
+function resetTimer(){
+	clearTimeout(powerTimeout);
 }
 
 // function stopPlayer(){
@@ -121,28 +203,30 @@ function init() {
 	mpos = new Vector(canvas.width/2, canvas.height/2);
 	mP = new Vector(0,0);
 	name = prompt("Enter Name:");
+	powerFoods.push(new Food(Math.random()*trueSpace.x, Math.random()*trueSpace.y, 10, colorRandom()));
 	// repels.push(new Vector(0,0));
 
-    for( let i = 0; i < 100; i ++){
-        foods.push(new Food(Math.random()*canvas.width, Math.random()*canvas.height, 10, colorRandom()));
+    for( let i = 0; i < foodNum; i ++){
+        foods.push(new Food(Math.random()*trueSpace.x, Math.random()*trueSpace.y, 10, colorRandom()));
     }
-    player = new Player(canvas.width/2, canvas.height/2, 25, colorRandom(), name, 4);
+    player = new Player(trueSpace.x/2, trueSpace.y/2, 25, colorRandom(), name, 4);
     update();
 
 }
 
 function update() {
 
-
+	mP.x = (canvas.width/2) + (player.x-mpos.x);
+	mP.y = (canvas.height/2) + (player.y-mpos.y);
     c.clearRect(0,0,canvas.width, canvas.height);
 
     for(let i = 0; i < foods.length; i++){
 
-		foods[i].update(c);
+		foods[i].draw(c, player);
 		if(player.dist(player.x, player.y,foods[i].x,foods[i].y) <= player.radius + foods[i].radius){
 			player.radius++;
 			foods.splice(i, 1);
-			foods.push(new Food(Math.random()*canvas.width, Math.random()*canvas.height, 10, colorRandom()));
+			foods.push(new Food(Math.random()*trueSpace.x, Math.random()*trueSpace.y, 10, colorRandom()));
 			i--;
 		}
 
@@ -150,7 +234,12 @@ function update() {
 		}
 
 		requestAnimationFrame(update);
-		player.update(c, mpos);
+		boundary();
+		minimap();
+		if(!power){
+			superFood();
+		}
+		player.update(c, mP, power);
 		// stopPlayer();
     }
 

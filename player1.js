@@ -8,7 +8,11 @@ class Player extends Food{
     }
 
     draw(context){
-        super.draw(c);
+        context.fillStyle = this.color;
+        context.beginPath();
+        context.arc(canvas.width/2,canvas.height/2,this.radius, 0, Math.PI*2, false);
+        context.closePath();
+        context.fill();
         context.strokeStyle = 'black';
         context.lineWidth = this.radius/40;
         context.stroke();
@@ -16,8 +20,8 @@ class Player extends Food{
         context.textAlign = 'center';
         context.textBaseline = 'middle';
         context.font = this.radius/2+"px Arial";
-        context.fillText(this.name, this.x, this.y);
-        context.strokeText(this.name, this.x, this.y);
+        context.fillText(this.name, canvas.width/2, canvas.height/2);
+        context.strokeText(this.name, canvas.width/2, canvas.height/2);
     }
 
     // feed(mouse, dist){
@@ -28,19 +32,24 @@ class Player extends Food{
     //     return dir;
     // }
 
-    update(context, mP){
+    update(context, mP, superVal){
         let vel = new Vector(mP.x, mP.y);
         vel.subVector(this);
         let dist = vel.magnitude();
         if(dist > 0){
             vel.toDirVec();
             vel.scale(this.maxSpeed);
+            if(superVal === true){
+                vel.scale(2);
+            }
             if(dist < this.radius) {
                 vel.scale(dist/this.radius);
             }
 
         }
-        this.addVector(vel);
+
+        this.subVector(vel);
+
         // console.log(this.x, this.y);
         this.draw(context);
     }
