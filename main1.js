@@ -13,6 +13,9 @@ let name;
 let boundaryThickness = 10;
 let power = false;
 let powerFoods = [];
+let deathFoods = [];
+let dead = false;
+let onRadar = [];
 let powerTimeout;
 // let trueX;
 // let trueY;
@@ -71,8 +74,54 @@ function minimap(){
 		c.lineWidth = 0.5;
 		c.stroke();
 	}
+	for(let i of onRadar){
+		c.fillStyle = deathFoods[i].color;
+		c.lineWidth = 0.5;
+		c.fillRect(((9*canvas.width)/10)+deathFoods[i].x/(trueSpace.x/100)-2, (canvas.height/20) + deathFoods[i].y/(trueSpace.y/100)-2, 4, 4);
+		c.stroke();
+	}
 
 
+}
+
+function deathPanel(){
+
+	c.font = "50px Arial";
+	c.textAlign = 'center';
+	c.textBaseline = 'middle';
+	c.beginPath();
+	c.fillStyle = player.color;
+	c.arc(canvas.width/2, canvas.height/2, player.radius, 0, Math.PI*2, false);
+	c.fill();
+	c.lineWidth = player.radius/40;
+	c.stroke();
+	c.lineWidth = 2.5;
+	c.fillStyle = 'white';
+	c.fillText("Radius: " + player.radius, canvas.width/2, canvas.height/2);
+	c.strokeText("Radius: " + player.radius, canvas.width/2, canvas.height/2);
+}
+
+function deathFood(){
+	onRadar = [];
+	for (let i = 0; i < deathFoods.length; i++){
+		deathFoods[i].draw(c, player);
+		if(player.dist(player.x, player.y, deathFoods[i].x, deathFoods[i].y) <= 700){
+			onRadar.push(i);
+			let vel = new Vector(player.x, player.y);
+	        vel.subVector(deathFoods[i]);
+			vel.toDirVec();
+			vel.scale(player.maxSpeed/2);
+			deathFoods[i].addVector(vel);
+			if(deathFoods[i].x+deathFoods[i].radius >= trueSpace.x || deathFoods[i].x-deathFoods[i].radius <= 0 || deathFoods[i].y+deathFoods[i].radius >= trueSpace.y || deathFoods[i].y-deathFoods[i].radius <= 0){
+				deathFoods[i].x = Math.random()*trueSpace.x;
+				deathFoods[i].y = Math.random() * trueSpace.y;
+			}
+			if(player.dist(player.x, player.y,deathFoods[i].x,deathFoods[i].y) <= player.radius + deathFoods[i].radius){
+				dead = true;
+			}
+
+		}
+	}
 }
 
 function superFood(){
@@ -206,6 +255,10 @@ function init() {
 	powerFoods.push(new Food(Math.random()*trueSpace.x, Math.random()*trueSpace.y, 10, colorRandom()));
 	// repels.push(new Vector(0,0));
 
+	for (let i = 0; i < 10; i++){
+		deathFoods.push(new Food(Math.random()*trueSpace.x, Math.random()*trueSpace.y, 10, colorRandom()));
+	}
+
     for( let i = 0; i < foodNum; i ++){
         foods.push(new Food(Math.random()*trueSpace.x, Math.random()*trueSpace.y, 10, colorRandom()));
     }
@@ -231,17 +284,26 @@ function update() {
 		}
 
 
-		}
+	}
+	deathFood();
 
+	boundary();
+	minimap();
+	if(!power){
+		superFood();
+	}
+	player.update(c, mP, power);
+	if (!dead){
 		requestAnimationFrame(update);
-		boundary();
-		minimap();
-		if(!power){
-			superFood();
-		}
-		player.update(c, mP, power);
+	}
+	if(dead){
+		c.clearRect(0,0,canvas.width,canvas.height);
+		deathPanel();
+	}
+
+
 		// stopPlayer();
-    }
+}
 
 
 	// console.log(velVec);
