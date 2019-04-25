@@ -8,13 +8,22 @@ let player;
 let vel;
 let eatVal;
 let foodNum = 1000;
+
 let mP;
+
 let name;
+
 let boundaryThickness = 10;
+
 let power = false;
 let powerFoods = [];
-let deathFoods = [];
+
+let magnet = false;
+let magnetFoods = [];
+
 let dead = false;
+let deathFoods = [];
+
 let onRadar = [];
 let powerTimeout;
 // let trueX;
@@ -65,21 +74,38 @@ function minimap(){
 	c.fill();
 	c.lineWidth = 1;
 	c.stroke();
-	if(!power){
-		c.beginPath();
-		c.arc(((9*canvas.width)/10) + powerFoods[0].x/(trueSpace.x/100), (canvas.height/20) + powerFoods[0].y/(trueSpace.y/100), 3, 0, Math.PI*2, false);
-		c.closePath();
-		c.fillStyle = powerFoods[0].color;
-		c.fill();
-		c.lineWidth = 0.5;
-		c.stroke();
+	if(!power && !magnet){
+		for (let i = 0; i<powerFoods.length; i++){
+			c.beginPath();
+			c.arc(((9*canvas.width)/10) + powerFoods[i].x/(trueSpace.x/100), (canvas.height/20) + powerFoods[i].y/(trueSpace.y/100), 2, 0, Math.PI*2, false);
+			c.closePath();
+			c.fillStyle = powerFoods[i].color;
+			c.fill();
+			c.lineWidth = 0.1;
+			c.stroke();
+		}
+		for (let i = 0; i<magnetFoods.length; i++){
+			c.beginPath();
+			c.arc(((9*canvas.width)/10) + magnetFoods[i].x/(trueSpace.x/100), (canvas.height/20) + magnetFoods[i].y/(trueSpace.y/100), 2, 0, Math.PI*2, false);
+			c.closePath();
+			c.fillStyle = magnetFoods[i].color;
+			c.fill();
+			c.lineWidth = 0.1;
+			c.stroke();
+		}
+
+
 	}
-	for(let i of onRadar){
-		c.fillStyle = deathFoods[i].color;
-		c.lineWidth = 0.5;
-		c.fillRect(((9*canvas.width)/10)+deathFoods[i].x/(trueSpace.x/100)-2, (canvas.height/20) + deathFoods[i].y/(trueSpace.y/100)-2, 4, 4);
-		c.stroke();
+	if(!magnet){
+		for(let i of onRadar){
+			c.fillStyle = deathFoods[i].color;
+			c.lineWidth = 0.5;
+			c.rect(((9*canvas.width)/10)+deathFoods[i].x/(trueSpace.x/100)-2, (canvas.height/20) + deathFoods[i].y/(trueSpace.y/100)-2, 4, 4);
+			c.fill();
+			c.stroke();
+		}
 	}
+
 
 
 }
@@ -124,34 +150,65 @@ function deathFood(){
 	}
 }
 
-function superFood(){
-	powerFoods[0].draw(c, player);
-	if(player.dist(player.x, player.y, powerFoods[0].x, powerFoods[0].y) <= 500){
-		let vel = new Vector(player.x, player.y);
-        vel.subVector(powerFoods[0]);
-		vel.toDirVec();
-		vel.scale(player.maxSpeed/2);
-		powerFoods[0].subVector(vel);
-		if(powerFoods[0].x+powerFoods[0].radius >= trueSpace.x || powerFoods[0].x-powerFoods[0].radius <= 0 || powerFoods[0].y+powerFoods[0].radius >= trueSpace.y || powerFoods[0].y-powerFoods[0].radius <= 0){
-			powerFoods[0].x = Math.random()*trueSpace.x;
-			powerFoods[0].y = Math.random() * trueSpace.y;
-		}
-		if(player.dist(player.x, player.y,powerFoods[0].x,powerFoods[0].y) <= player.radius + powerFoods[0].radius){
-			player.radius++;
-			power = true;
-			powerTimer();
+function magnetFood(){
+	for(let i = 0; i<magnetFoods.length; i++){
+		magnetFoods[i].draw(c, player);
+		if(player.dist(player.x, player.y, magnetFoods[i].x, magnetFoods[i].y) <= 500){
+			let vel = new Vector(player.x, player.y);
+	        vel.subVector(magnetFoods[i]);
+			vel.toDirVec();
+			vel.scale(player.maxSpeed/2);
+			magnetFoods[i].subVector(vel);
+			if(magnetFoods[i].x+magnetFoods[i].radius >= trueSpace.x || magnetFoods[i].x-magnetFoods[i].radius <= 0 || magnetFoods[i].y+magnetFoods[i].radius >= trueSpace.y || magnetFoods[i].y-magnetFoods[i].radius <= 0){
+				magnetFoods[i].x = Math.random()*trueSpace.x;
+				magnetFoods[i].y = Math.random() * trueSpace.y;
+			}
+			if(player.dist(player.x, player.y,magnetFoods[i].x,magnetFoods[i].y) <= player.radius + magnetFoods[i].radius){
+				player.radius++;
+				magnet = true;
+				powerTimer();
+			}
+
 		}
 
 	}
+}
+
+function superFood(){
+	for (let i = 0; i < powerFoods.length; i++){
+		powerFoods[i].draw(c, player);
+		if(player.dist(player.x, player.y, powerFoods[i].x, powerFoods[i].y) <= 500){
+			let vel = new Vector(player.x, player.y);
+	        vel.subVector(powerFoods[i]);
+			vel.toDirVec();
+			vel.scale(player.maxSpeed/2);
+			powerFoods[i].subVector(vel);
+			if(powerFoods[i].x+powerFoods[i].radius >= trueSpace.x || powerFoods[i].x-powerFoods[i].radius <= 0 || powerFoods[i].y+powerFoods[i].radius >= trueSpace.y || powerFoods[i].y-powerFoods[i].radius <= 0){
+				powerFoods[i].x = Math.random()*trueSpace.x;
+				powerFoods[i].y = Math.random() * trueSpace.y;
+			}
+			if(player.dist(player.x, player.y,powerFoods[i].x,powerFoods[i].y) <= player.radius + powerFoods[i].radius){
+				player.radius++;
+				power = true;
+				powerTimer();
+			}
+
+		}
+	}
+
 
 }
 
 function powerTimer(){
 	powerTimeout = setTimeout(function(){
 		power = false;
-		powerFoods[0].x = Math.random()*trueSpace.x;
-		powerFoods[0].y = Math.random()*trueSpace.y;
-		powerFoods[0].color = colorRandom();
+		magnet = false;
+		for (let i = 0; i<powerFoods.length; i++){
+			powerFoods[i].x = Math.random()*trueSpace.x;
+			powerFoods[i].y = Math.random()*trueSpace.y;
+			powerFoods[i].color = colorRandom();
+		}
+
 		resetTimer();
 	}, 5000);
 }
@@ -252,11 +309,18 @@ function init() {
 	mpos = new Vector(canvas.width/2, canvas.height/2);
 	mP = new Vector(0,0);
 	name = prompt("Enter Name:");
-	powerFoods.push(new Food(Math.random()*trueSpace.x, Math.random()*trueSpace.y, 10, colorRandom()));
+	for(let i = 0; i < 5; i++){
+		powerFoods.push(new Food(Math.random()*trueSpace.x, Math.random()*trueSpace.y, 10, colorRandom()));
+	}
+
+	for (let i = 0; i<5; i++){
+		magnetFoods.push(new Food(Math.random()*trueSpace.x, Math.random()*trueSpace.y, 10, colorRandom()));
+	}
+
 	// repels.push(new Vector(0,0));
 
 	for (let i = 0; i < 10; i++){
-		deathFoods.push(new Food(Math.random()*trueSpace.x, Math.random()*trueSpace.y, 10, colorRandom()));
+		deathFoods.push(new Food(Math.random()*trueSpace.x, Math.random()*trueSpace.y, 20, colorRandom()));
 	}
 
     for( let i = 0; i < foodNum; i ++){
@@ -285,12 +349,16 @@ function update() {
 
 
 	}
-	deathFood();
+	if(!magnet){
+		deathFood();
+	}
+
 
 	boundary();
 	minimap();
-	if(!power){
+	if(!power && !magnet){
 		superFood();
+		magnetFood();
 	}
 	player.update(c, mP, power);
 	if (!dead){

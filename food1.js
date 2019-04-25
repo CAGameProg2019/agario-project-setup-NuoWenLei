@@ -8,11 +8,22 @@ class Food extends Vector{
 
 
     draw(context, playerVec){
+        let vel = new Vector(0,0);
+
+        if(magnet && this.dist(this.x, this.y, playerVec.x, playerVec.y) <= 500){
+            vel.x = playerVec.x;
+            vel.y = playerVec.y;
+            vel.subVector(this);
+            vel.toDirVec();
+            vel.scale(playerVec.maxSpeed/1.5);
+            this.addVector(vel);
+        }
         context.fillStyle = this.color;
         context.beginPath();
         context.arc((canvas.width/2) +(this.x-playerVec.x),(canvas.height/2) +(this.y-playerVec.y),this.radius, 0, Math.PI*2, false);
         context.closePath();
         context.fill();
+
     }
 
     get mass(){
