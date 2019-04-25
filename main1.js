@@ -50,7 +50,7 @@ function boundary(){
 	c.lineWidth = boundaryThickness;
 	c.stroke();
 	if(player.x+player.radius >= trueSpace.x || player.x-player.radius <= 0 || player.y+player.radius >= trueSpace.y || player.y-player.radius <= 0){
-		player.radius -= player.radius/8;
+		dead = true;
 	}
 }
 
